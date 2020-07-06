@@ -20,7 +20,7 @@ int map_get(HashMap *map, char *key){
     Entry **buckets = map->buckets;
     size_t capacity = map->capacity;
 
-    int idx = map_indexer(map, key);
+    size_t idx = map_indexer(map, key);
     if(!buckets[idx]){
         Entry *node_new = node_create(key);
         buckets[idx] = node_new;
