@@ -7,7 +7,7 @@
 int main() {
     LRUCache cache;
     LRUCache_init(&cache, 2u);
-    Entry *rear = cache.map->rear;
+    
 
     char buf[BUF_SIZE];
     while(fgets(buf, BUF_SIZE, stdin)){
@@ -16,6 +16,7 @@ int main() {
         LRUCache_get(&cache, buf);
     }
 
+    Entry *rear = cache.map.rear;
     if(rear)
         printf("The LRU is %s\n", rear->key);
 
