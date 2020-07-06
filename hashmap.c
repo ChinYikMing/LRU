@@ -33,6 +33,12 @@ int map_get(HashMap *map, char *key){
     //invariant: the buckets[idx] has item
 
     if(!strcmp(key, buckets[idx]->key)){
+        Entry *rear = map->rear;
+        if(!strcmp(key, rear->key)){
+            map->rear = map->rear->prev;
+            map->rear->next = NULL;
+        }
+
         add_to_front(map, buckets[idx]);
         return 0;
     }
@@ -40,19 +46,25 @@ int map_get(HashMap *map, char *key){
     //invariant: collision occur
 
     for(size_t i = idx + 1; i != idx; i = (i + 1) & (capacity - 1)){
-       if(i == capacity)
-           i = 0;
+        if(i == capacity)
+            i = 0;
 
-       Entry *curr = buckets[i];
-       if(i < capacity && !curr){
-           idx = i;
-           break;
-       }
+        Entry *curr = buckets[i];
+        if(i < capacity && !curr){
+            idx = i;
+            break;
+        }
 
-       if(i < capacity && !strcmp(key, curr->key)){
-           add_to_front(map, curr);
-           return 0;
-       }
+        if(i < capacity && !strcmp(key, curr->key)){
+            Entry *rear = map->rear;
+            if(!strcmp(key, rear->key)){
+                map->rear = map->rear->prev;
+                map->rear->next = NULL;
+            }
+
+            add_to_front(map, curr);
+            return 0;
+        }
     }
 
     //invariant: key not found
@@ -173,7 +185,7 @@ int map_destruct(HashMap *map){
     size_t capacity = map->capacity;
     Entry **buckets = map->buckets;
     Entry *e;
-    for(size_t i = 0;i < map->capacity; ++i){
+    for(size_t i = 0;i < capacity; ++i){
         e = buckets[i];
         if(e){
             free(e->key);
