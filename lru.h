@@ -7,7 +7,7 @@
 #include <stdlib.h>
 
 typedef  struct lru_cache {
-    HashMap *map;
+    HashMap map;
 } LRUCache;
 
 int LRUCache_init(LRUCache *cache, size_t cap_bits);
