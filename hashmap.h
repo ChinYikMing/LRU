@@ -24,6 +24,8 @@ size_t map_indexer(HashMap *map, char *key);
 
 int map_init(HashMap *map, size_t cap_bits);
 
+int map_set(HashMap *map, char *key);
+
 int map_get(HashMap *map, char *key);
 
 int map_isfull(HashMap *map);

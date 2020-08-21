@@ -1,4 +1,3 @@
-
 #ifndef LRU_LRU_H
 #define LRU_LRU_H
 
@@ -12,7 +11,13 @@ typedef  struct lru_cache {
 
 int LRUCache_init(LRUCache *cache, size_t cap_bits);
 
-int LRUCache_get(LRUCache *cache, char *key);
+int LRUCache_set(LRUCache *cache, char *key);
+
+void LRUCache_get(LRUCache *cache, char *key);
+
+int LRUCache_get_mru(LRUCache *cache);
+
+int LRUCache_get_lru(LRUCache *cache);
 
 int LRUCache_destruct(LRUCache *cache);
 

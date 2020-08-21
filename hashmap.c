@@ -15,30 +15,37 @@ int map_init(HashMap *map, size_t cap_bits){
     return 0;
 }
 
+int map_set(HashMap *map, char *key){
+
+    Entry **buckets = map->buckets;
+    size_t idx = map_indexer(map, key);
+
+    Entry *node_new = node_create(key);
+    if(!node_new) return -1;
+
+    if(map_isfull(map))
+        idx = remove_rear(map);
+
+    // invariant: the map has empty slot
+
+    buckets[idx] = node_new;
+    map->size++;
+    add_to_front(map, node_new);
+
+    return 0;
+}
+
 int map_get(HashMap *map, char *key){
 
     Entry **buckets = map->buckets;
     size_t capacity = map->capacity;
-
     size_t idx = map_indexer(map, key);
-    if(!buckets[idx]){
-        Entry *node_new = node_create(key);
-        buckets[idx] = node_new;
-        map->size++;
-        add_to_front(map, node_new);
 
-        return 0;
-    }
+    // the slot is empty
+    if(!buckets[idx]) return -1;
 
-    //invariant: the buckets[idx] has item
-
-    if(!strcmp(key, buckets[idx]->key)){
-        Entry *rear = map->rear;
-        if(!strcmp(key, rear->key)){
-            map->rear = map->rear->prev;
-            map->rear->next = NULL;
-        }
-
+    // the buckets[idx] is same as the key
+    if(!strcmp(buckets[idx]->key, key)){
         add_to_front(map, buckets[idx]);
         return 0;
     }
@@ -46,22 +53,15 @@ int map_get(HashMap *map, char *key){
     //invariant: collision occur
 
     for(size_t i = idx + 1; i != idx; i = (i + 1) & (capacity - 1)){
+
         if(i == capacity)
             i = 0;
 
         Entry *curr = buckets[i];
-        if(i < capacity && !curr){
-            idx = i;
-            break;
-        }
+        if(!curr)
+            return -1;
 
-        if(i < capacity && !strcmp(key, curr->key)){
-            Entry *rear = map->rear;
-            if(!strcmp(key, rear->key)){
-                map->rear = map->rear->prev;
-                map->rear->next = NULL;
-            }
-
+        if(!strcmp(key, curr->key)){
             add_to_front(map, curr);
             return 0;
         }
@@ -69,20 +69,7 @@ int map_get(HashMap *map, char *key){
 
     //invariant: key not found
 
-    if(map_isfull(map))
-        idx = remove_rear(map);
-
-    //invariant: the map has empty slot
-
-    Entry *node_new = node_create(key);
-    if(!node_new)
-        return -1;
-
-    buckets[idx] = node_new;
-    map->size++;
-    add_to_front(map, node_new);
-
-    return 0;
+    return -1;
 }
 
 int add_to_front(HashMap *map, Entry *node){
@@ -96,13 +83,18 @@ int add_to_front(HashMap *map, Entry *node){
         return 0;
     }
 
+    // the node is at front
     if(!strcmp(map->front->key, node->key))
         return 0;
 
-    if(!node->next){
-        if(node->prev)
-            node->prev->next = NULL;
-    } else if(node->prev && node->next){
+    // the node is at rear
+    if(!strcmp(map->rear->key, node->key)){
+        map->rear = map->rear->prev;
+        map->rear->next = NULL;
+    }
+
+    // the node is at between
+    if(node->prev && node->next){
         node->prev->next = node->next;
         node->next->prev = node->prev;
     }
@@ -115,17 +107,17 @@ int add_to_front(HashMap *map, Entry *node){
 }
 
 int remove_rear(HashMap *map){
-    char *key = map->rear->key;
+    char *rear_key = map->rear->key;
     map->rear = map->rear->prev;
     map->rear->next = NULL;
     map->size--;
 
     Entry **buckets = map->buckets;
     size_t capacity = map->capacity;
-    size_t idx = map_indexer(map, key);
+    size_t idx = map_indexer(map, rear_key);
     Entry *e = buckets[idx];
 
-    if(!strcmp(e->key, key)){
+    if(!strcmp(e->key, rear_key)){
         free(e->key);
         free(e);
 
@@ -137,7 +129,7 @@ int remove_rear(HashMap *map){
             i = 0;
 
         e = buckets[i];
-        if(e && !strcmp(e->key, key)){
+        if(e && !strcmp(e->key, rear_key)){
             free(e->key);
             free(e);
 
@@ -145,7 +137,7 @@ int remove_rear(HashMap *map){
         }
     }
 
-    return -1;
+    return 0;
 }
 
 Entry *node_create(char *key){
