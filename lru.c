@@ -8,13 +8,8 @@ int LRUCache_set(LRUCache *cache, char *key){
     return map_set(&cache->map, key);
 }
 
-void LRUCache_get(LRUCache *cache, char *key){
-    int ret = map_get(&cache->map, key);
-
-    if(ret == -1)
-        printf("%s not found in cache\n", key);
-    else
-        printf("%s is in the cache\n", key);
+int LRUCache_get(LRUCache *cache, char *key){
+    return map_get(&cache->map, key) == -1 ? -1 : 0;
 }
 
 int LRUCache_get_mru(LRUCache *cache){
