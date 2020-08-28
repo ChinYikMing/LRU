@@ -8,6 +8,7 @@ struct entry {
     Entry *prev;
     Entry *next;
     char *key;
+    size_t idx;
 };
 
 typedef struct map {
@@ -16,6 +17,7 @@ typedef struct map {
     Entry *rear;
     size_t capacity;
     size_t size;
+    size_t empty_idx;
 } HashMap;
 
 size_t hash33(char *key);
